@@ -40,6 +40,18 @@ exists, otherwise cloning it from GitHub. `JPLCZ_MICROVM_BUILD_TESTS` and
 `JPLCZ_MICROVM_BUILD_EXAMPLES` control the test suite and example programs
 (both default on for top-level builds).
 
+## Examples
+
+`examples/vm_code_gen_demo.cpp` and `examples/vm_compiler_demo.cpp` are
+built as part of the default CMake build above and run on the host.
+
+`examples/bare_metal/qemu-virt-arm32/` is a standalone, freestanding
+32-bit ARM (ARMv7-A) kernel that runs `jplcz_microvm` bytecode on QEMU's
+`virt` machine and streams its output over the ARM PL011 UART via
+`microfmt::pl011_sink`. It has its own CMake toolchain file and is not part
+of the host build - see its
+[README](examples/bare_metal/qemu-virt-arm32/README.md) for details.
+
 ## Using it as a dependency
 
 The CMake package name is `jplcz_microvm`, exposing a single target:
