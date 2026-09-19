@@ -38,3 +38,11 @@ via CMake `FetchContent`, preferring a sibling `../microfmt` checkout if one
 exists, otherwise cloning it from GitHub. `MICROVM_BUILD_TESTS` and
 `MICROVM_BUILD_EXAMPLES` control the test suite and example programs
 (both default on for top-level builds).
+
+## Using it as a dependency
+
+The CMake package name is `jplcz_microvm`, exposing a single target:
+
+```cmake
+target_link_libraries(your_target PRIVATE jplcz_microvm::microvm)
+```

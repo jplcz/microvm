@@ -12,7 +12,7 @@ FetchContent_MakeAvailable(googletest)
 
 function(add_microvm_test NAME SOURCE)
     add_executable(${NAME} ${SOURCE})
-    target_link_libraries(${NAME} PRIVATE microvm::microvm GTest::gtest_main)
+    target_link_libraries(${NAME} PRIVATE jplcz_microvm::microvm GTest::gtest_main)
     target_compile_features(${NAME} PRIVATE cxx_std_20)
     target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     add_test(NAME ${NAME} COMMAND ${NAME})

@@ -4,7 +4,7 @@
 
 function(add_microvm_example NAME SOURCE)
     add_executable(${NAME} ${SOURCE})
-    target_link_libraries(${NAME} PRIVATE microvm::microvm)
+    target_link_libraries(${NAME} PRIVATE jplcz_microvm::microvm)
     target_compile_features(${NAME} PRIVATE cxx_std_20)
 endfunction()
 

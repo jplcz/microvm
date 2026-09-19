@@ -1,8 +1,0 @@
-@PACKAGE_INIT@
-
-include(CMakeFindDependencyMacro)
-find_dependency(jplcz_microfmt CONFIG)
-
-include("${CMAKE_CURRENT_LIST_DIR}/microvm-targets.cmake")
-
-check_required_components(microvm)
