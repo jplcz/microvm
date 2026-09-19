@@ -5,9 +5,10 @@
 /** @file main.cpp
  * @brief Minimal 32-bit ARM (ARMv7-A) freestanding kernel for QEMU's `virt`
  * machine. Boots on a single core, brings up the PL011 UART via
- * `microfmt::pl011_sink`, and runs a couple of small `jplcz_microvm`
- * bytecode programs against real RAM, a scratch register bank, and
- * scratch work RAM - streaming their output straight to the UART.
+ * `microfmt::pl011_sink`, and runs a few small `jplcz_microvm` programs -
+ * both hand-generated with `vm_code_generator` and compiled from a tiny
+ * script with `vm_compiler` - against real RAM, a scratch register bank,
+ * and scratch work RAM, streaming their output straight to the UART.
  */
 
 #include <array>
@@ -17,10 +18,12 @@
 
 #include <microfmt/hw/pl011_sink.hpp>
 #include <microfmt/inspector/address_space.hpp>
+#include <microfmt/inspector/gdb_registers.hpp>
 #include <microfmt/inspector/register_context.hpp>
 #include <microfmt/microfmt.hpp>
 #include <microvm/micro_vm.hpp>
 #include <microvm/vm_code_gen.hpp>
+#include <microvm/vm_compiler.hpp>
 
 // Freestanding libc shims (strlen/memchr/memcpy/memset) required when
 // building with -nostdlib live in libc_stubs.c, compiled as plain C so
@@ -181,6 +184,45 @@ extern "C" void kernel_main() {
     microfmt::format_to(sink, "\n[3] work_ram_print: ");
     auto result = memory_vm_executor::execute(gen.program(), space, reg_ctx, stack, work_ram, sink);
     microfmt::format_to(sink, " (success={})\n", result.success);
+  }
+
+  // --------------------------------------------------------------------
+  // Program 4: compile a tiny C-like script with `vm_compiler` - built on
+  // `vm_lexer` + `vm_code_generator` - backed entirely by static,
+  // fixed-capacity tables for its instruction buffer, variable symbol
+  // table, and label/patch tables. No heap allocation anywhere.
+  // --------------------------------------------------------------------
+  {
+    constexpr microfmt::string_view script = R"(
+      let a = 6;
+      let b = 7;
+      let product = a * b;
+      print_int(product);
+      print_char(32);
+      print_hex(product);
+      halt;
+      )";
+
+    instruction compiler_code[32];
+    vm_code_generator compiler_gen(compiler_code);
+
+    variable_symbol compiler_symbols[8]{};
+    variable_context compiler_vars(compiler_symbols);
+
+    label_allocator::label_info label_infos[8]{};
+    label_allocator::patch_site patch_sites[8]{};
+    label_allocator compiler_labels(label_infos, patch_sites);
+
+    const auto arch = target_arch_traits::create<microfmt::gdb::tags::arm32>();
+
+    microfmt::format_to(sink, "\n[4] vm_compiler (static tables): 6 * 7 = ");
+    auto compile_result = vm_compiler::compile(script, compiler_gen, compiler_vars, arch, compiler_labels, sink);
+    if (!compile_result.success) {
+      microfmt::format_to(sink, "compilation failed\n");
+    } else {
+      auto result = memory_vm_executor::execute(compiler_gen.program(), space, reg_ctx, stack, work_ram, sink);
+      microfmt::format_to(sink, " (success={})\n", result.success);
+    }
   }
 
   microfmt::format_to(sink, "\nSystem entering low-power idle state (WFI)...\n");

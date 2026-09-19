@@ -204,9 +204,8 @@ private:
     if (tok.type == token_type::identifier) {
       string_view id = tok.text;
 
-      // Handle statement-level print functions: print_int(expr); / print_hex(expr);
-      if (id == "print_int" || id == "print_hex") {
-        bool is_hex = (id == "print_hex");
+      // Handle statement-level print functions: print_int(expr); / print_hex(expr); / print_char(expr);
+      if (id == "print_int" || id == "print_hex" || id == "print_char") {
         lexer_.advance();
         if (lexer_.current().type != token_type::lparen) {
           report_error("Expected '(' after '{}'", id);
@@ -229,8 +228,10 @@ private:
         }
         lexer_.advance();
 
-        if (is_hex)
+        if (id == "print_hex")
           gen_.print_hex();
+        else if (id == "print_char")
+          gen_.print_char();
         else
           gen_.print_int();
         return true;

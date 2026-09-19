@@ -53,6 +53,9 @@ target_compile_options(firmware.elf PRIVATE
     -Wno-psabi
     -DMICROFMT_DISABLE_ASSERT_STDIO=1)
 
+set_source_files_properties(libc_stubs.c PROPERTIES
+    COMPILE_OPTIONS "-fno-builtin")
+
 target_link_options(firmware.elf PRIVATE
     -mcpu=cortex-a15
     -marm

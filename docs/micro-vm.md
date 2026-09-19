@@ -275,7 +275,7 @@ Statements are terminated by `;` or grouped in `{ ... }` blocks:
 | `let name = expr;` | Declares a variable, backed by an 8-byte `work_ram` slot allocated by `variable_context::get_or_allocate`. |
 | `name = expr;` | Reassigns an existing variable, or a target register if `name` resolves through `target_arch_traits::lookup_register` (for example `rax = expr;`). |
 | `while (cond) { ... }` | Loop, compiled to `branch_zero`/`jump` around two labels obtained from `label_allocator`. |
-| `print_int(expr);` / `print_hex(expr);` | Statement-level printing (`gen_.print_int()`/`gen_.print_hex()`). |
+| `print_int(expr);` / `print_hex(expr);` / `print_char(expr);` | Statement-level printing (`gen_.print_int()`/`gen_.print_hex()`/`gen_.print_char()`). |
 | `halt;` | Emits `halt`. |
 
 Expressions use standard C-style precedence, lowest to highest:

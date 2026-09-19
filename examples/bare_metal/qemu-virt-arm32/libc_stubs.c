@@ -57,3 +57,17 @@ void *memset(void *ptr, int value, size_t num) {
 
   return ptr;
 }
+
+int memcmp(const void *lhs, const void *rhs, size_t num) {
+  const unsigned char *a = (const unsigned char *)lhs;
+  const unsigned char *b = (const unsigned char *)rhs;
+  size_t i;
+
+  for (i = 0; i < num; ++i) {
+    if (a[i] != b[i]) {
+      return (int)a[i] - (int)b[i];
+    }
+  }
+
+  return 0;
+}
