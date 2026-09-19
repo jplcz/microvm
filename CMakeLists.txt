@@ -37,7 +37,7 @@ if(NOT TARGET jplcz_microfmt::microfmt)
     else()
         FetchContent_Declare(jplcz_microfmt
             GIT_REPOSITORY git@github.com:jplcz/microfmt.git
-            GIT_TAG main)
+            GIT_TAG master)
     endif()
 
     FetchContent_MakeAvailable(jplcz_microfmt)
