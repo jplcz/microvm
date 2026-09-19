@@ -41,7 +41,7 @@ target_include_directories(firmware.elf PRIVATE
 
 target_compile_options(firmware.elf PRIVATE
     -mcpu=cortex-a15
-    -marm
+    -mthumb
     -mno-unaligned-access
     -fno-exceptions
     -fno-rtti
