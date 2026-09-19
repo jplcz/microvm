@@ -42,6 +42,7 @@ target_include_directories(firmware.elf PRIVATE
 target_compile_options(firmware.elf PRIVATE
     -mcpu=cortex-a15
     -marm
+    -mno-unaligned-access
     -fno-exceptions
     -fno-rtti
     -fno-pic
@@ -49,6 +50,7 @@ target_compile_options(firmware.elf PRIVATE
     -Os
     -Wall
     -Wextra
+    -Wno-psabi
     -DMICROFMT_DISABLE_ASSERT_STDIO=1)
 
 target_link_options(firmware.elf PRIVATE

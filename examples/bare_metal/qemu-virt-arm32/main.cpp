@@ -57,10 +57,55 @@ bool write_register(register_bank *state, microfmt::address_space_ref, uint32_t 
 
 } // namespace
 
+// ----------------------------------------------------------------------
+// microfmt library assertion handler. Registered before anything else
+// runs so that any MICROFMT_ASSERT failure (e.g. an out-of-bounds span
+// access) reports over the UART instead of silently falling through to
+// MICROFMT_TRAP()'s __builtin_trap() (still caught by vector_undef, but
+// without the "what/where" context this gives us).
+// ----------------------------------------------------------------------
+
+extern "C" void bare_metal_assert_handler(const char *expr, const char *file, int line, const char *msg) {
+  microfmt::pl011_sink uart(0x09000000, /*translate_crlf=*/true);
+  const auto sink = uart.as_sink();
+
+  microfmt::format_to(sink, "\n!!! MICROFMT ASSERT FAILED !!!\n");
+  microfmt::format_to(sink, "  expr: {}\n", microfmt::string_view(expr));
+  microfmt::format_to(sink, "  at:   {}:{}\n", microfmt::string_view(file), line);
+  microfmt::format_to(sink, "  msg:  {}\n", microfmt::string_view(msg));
+}
+
+// ----------------------------------------------------------------------
+// CPU exception handler, entered from the vector table in start.S with
+// r0=exception index, r1=faulting instruction address. Re-creates a fresh
+// UART sink (cheap - it is just a base address + a flag) since we cannot
+// rely on any state kernel_main happened to have on its stack, then
+// prints a short diagnostic and halts.
+// ----------------------------------------------------------------------
+
+extern "C" void exception_handler(uint32_t code, uint32_t addr) {
+  static constexpr microfmt::string_view names[] = {
+      "undefined instruction", "software interrupt", "prefetch abort", "data abort", "irq", "fiq",
+  };
+
+  microfmt::pl011_sink uart(0x09000000, /*translate_crlf=*/true);
+  const auto sink = uart.as_sink();
+
+  microfmt::string_view name =
+      code < (sizeof(names) / sizeof(names[0])) ? names[code] : microfmt::string_view("unknown");
+  microfmt::format_to(sink, "\n!!! CPU EXCEPTION: {} at pc={:#010x} !!!\n", name, addr);
+
+  while (true) {
+    __asm__ volatile("wfi");
+  }
+}
+
 extern "C" void kernel_main() {
   microfmt::pl011_sink uart(0x09000000, /*translate_crlf=*/true);
   uart.enable();
   const auto sink = uart.as_sink();
+
+  microfmt::set_assert_handler(bare_metal_assert_handler);
 
   microfmt::format_to(sink, "\n==================================================\n");
   microfmt::format_to(sink, " [KERNEL] 32-bit ARM (ARMv7-A) microvm demo\n");
