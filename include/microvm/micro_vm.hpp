@@ -687,7 +687,7 @@ public:
       }
     }
 
-    return {sp >= 0 ? evaluation_stack[(size_t)sp] : 0, (size_t)sp >= 0};
+    return {sp >= 0 ? evaluation_stack[(size_t)sp] : 0, sp >= 0};
   }
 };
 
