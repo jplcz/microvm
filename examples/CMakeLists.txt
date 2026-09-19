@@ -9,4 +9,9 @@ function(add_jplcz_microvm_example NAME SOURCE)
 endfunction()
 
 add_jplcz_microvm_example(vm_code_gen_demo vm_code_gen_demo.cpp)
-add_jplcz_microvm_example(vm_compiler_demo vm_compiler_demo.cpp)
+
+if(UNIX)
+    add_jplcz_microvm_example(vm_compiler_demo vm_compiler_demo.cpp)
+else()
+    message(STATUS "jplcz_microvm: POSIX signals not available - skipping vm_compiler_demo (uses fallible_address_space)")
+endif()
