@@ -50,6 +50,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: microvm
+
+      - name: Checkout jplcz_microfmt
+        uses: actions/checkout@v7
+        with:
+          repository: jplcz/microfmt
+          path: microfmt
 
       - name: Enable the MSVC environment
         if: runner.os == 'Windows'
@@ -57,6 +65,7 @@ jobs:
 
       - name: Configure
         shell: bash
+        working-directory: microvm
         run: >-
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
           -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
@@ -64,8 +73,10 @@ jobs:
           -DJPLCZ_MICROVM_BUILD_EXAMPLES=ON
 
       - name: Build
+        working-directory: microvm
         run: cmake --build build --config Release --parallel 2
 
       - name: Test
+        working-directory: microvm
         run: >-
           ctest --test-dir build --build-config Release --output-on-failure

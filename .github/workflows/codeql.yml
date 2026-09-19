@@ -43,6 +43,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: microvm
+
+      - name: Checkout jplcz_microfmt
+        uses: actions/checkout@v7
+        with:
+          repository: jplcz/microfmt
+          path: microfmt
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -52,6 +60,7 @@ jobs:
           queries: security-extended
 
       - name: Configure and build
+        working-directory: microvm
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DJPLCZ_MICROVM_BUILD_TESTS=ON -DJPLCZ_MICROVM_BUILD_EXAMPLES=ON
