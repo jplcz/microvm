@@ -36,7 +36,7 @@ if(NOT TARGET jplcz_microfmt::microfmt)
         FetchContent_Declare(jplcz_microfmt SOURCE_DIR "${JPLCZ_MICROVM_MICROFMT_LOCAL_PATH}")
     else()
         FetchContent_Declare(jplcz_microfmt
-            GIT_REPOSITORY git@github.com:jplcz/microfmt.git
+            GIT_REPOSITORY https://github.com/jplcz/microfmt.git
             GIT_TAG master)
     endif()
 
