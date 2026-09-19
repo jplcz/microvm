@@ -6,34 +6,34 @@ cmake_minimum_required(VERSION 3.20)
 project(jplcz_microvm VERSION 0.1.0 LANGUAGES CXX)
 
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
-    set(MICROVM_IS_TOP_LEVEL ON)
+    set(JPLCZ_MICROVM_IS_TOP_LEVEL ON)
 else()
-    set(MICROVM_IS_TOP_LEVEL OFF)
+    set(JPLCZ_MICROVM_IS_TOP_LEVEL OFF)
 endif()
 
-option(MICROVM_BUILD_TESTS "Build test suite" ${MICROVM_IS_TOP_LEVEL})
-option(MICROVM_BUILD_EXAMPLES "Build example apps" ${MICROVM_IS_TOP_LEVEL})
-option(MICROVM_INSTALL
-    "Install microvm headers and CMake package metadata (requires jplcz_microfmt \
+option(JPLCZ_MICROVM_BUILD_TESTS "Build test suite" ${JPLCZ_MICROVM_IS_TOP_LEVEL})
+option(JPLCZ_MICROVM_BUILD_EXAMPLES "Build example apps" ${JPLCZ_MICROVM_IS_TOP_LEVEL})
+option(JPLCZ_MICROVM_INSTALL
+    "Install jplcz_microvm headers and CMake package metadata (requires jplcz_microfmt \
 provided via find_package, e.g. Conan/vcpkg/CPM, not the local FetchContent fallback)"
     OFF)
 
 include(FetchContent)
 
-# microvm is a small register/memory scripting VM layered on top of the
+# jplcz_microvm is a small register/memory scripting VM layered on top of the
 # jplcz_microfmt inspector headers (address_space, register_context, ...).
 # When developed side-by-side with microfmt, prefer the local checkout;
 # otherwise fetch it from GitHub.
 if(NOT TARGET jplcz_microfmt::microfmt)
-    set(MICROVM_MICROFMT_LOCAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../microfmt"
+    set(JPLCZ_MICROVM_MICROFMT_LOCAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../microfmt"
         CACHE PATH "Path to a local jplcz_microfmt checkout")
 
-    if(EXISTS "${MICROVM_MICROFMT_LOCAL_PATH}/CMakeLists.txt")
+    if(EXISTS "${JPLCZ_MICROVM_MICROFMT_LOCAL_PATH}/CMakeLists.txt")
         set(JPLCZ_MICROFMT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
         set(JPLCZ_MICROFMT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
         set(JPLCZ_MICROFMT_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
         set(JPLCZ_MICROFMT_BUILD_HEADER_CHECKS OFF CACHE BOOL "" FORCE)
-        FetchContent_Declare(jplcz_microfmt SOURCE_DIR "${MICROVM_MICROFMT_LOCAL_PATH}")
+        FetchContent_Declare(jplcz_microfmt SOURCE_DIR "${JPLCZ_MICROVM_MICROFMT_LOCAL_PATH}")
     else()
         FetchContent_Declare(jplcz_microfmt
             GIT_REPOSITORY git@github.com:jplcz/microfmt.git
@@ -54,16 +54,16 @@ target_include_directories(jplcz_microvm INTERFACE
 target_link_libraries(jplcz_microvm INTERFACE jplcz_microfmt::microfmt)
 target_compile_features(jplcz_microvm INTERFACE cxx_std_20)
 
-if(MICROVM_BUILD_TESTS)
+if(JPLCZ_MICROVM_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
 
-if(MICROVM_BUILD_EXAMPLES)
+if(JPLCZ_MICROVM_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(MICROVM_INSTALL)
+if(JPLCZ_MICROVM_INSTALL)
     include(GNUInstallDirs)
     install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
     install(TARGETS jplcz_microvm EXPORT jplcz_microvmTargets)

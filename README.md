@@ -4,13 +4,14 @@ SPDX-FileCopyrightText: 2026 Jarosław Pelczar <jarek@jpelczar.com>
 SPDX-License-Identifier: BSD-2-Clause
 -->
 
-# microvm
+# jplcz_microvm
 
-`microvm` is a tiny, zero-allocation bytecode stack machine, code generator,
-and compiled C-like scripting language for register/memory expressions. It is
-built on top of [`jplcz_microfmt`](https://github.com/jplcz/microfmt)'s
-inspector primitives (`address_space_ref`, `register_context_ref`) for
-fault-safe target access and formatted output.
+`jplcz_microvm` is a tiny, zero-allocation bytecode stack machine, code
+generator, and compiled C-like scripting language for register/memory
+expressions. It is built on top of
+[`jplcz_microfmt`](https://github.com/jplcz/microfmt)'s inspector primitives
+(`address_space_ref`, `register_context_ref`) for fault-safe target access
+and formatted output.
 
 It was split out of `jplcz_microfmt` into its own repository so it can evolve
 and version independently.
@@ -35,8 +36,8 @@ ctest --test-dir build --output-on-failure
 
 By default the build fetches [`jplcz_microfmt`](https://github.com/jplcz/microfmt)
 via CMake `FetchContent`, preferring a sibling `../microfmt` checkout if one
-exists, otherwise cloning it from GitHub. `MICROVM_BUILD_TESTS` and
-`MICROVM_BUILD_EXAMPLES` control the test suite and example programs
+exists, otherwise cloning it from GitHub. `JPLCZ_MICROVM_BUILD_TESTS` and
+`JPLCZ_MICROVM_BUILD_EXAMPLES` control the test suite and example programs
 (both default on for top-level builds).
 
 ## Using it as a dependency
