@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include <microfmt/inspector/micro_vm.hpp>
 #include <microfmt/inspector/register_context.hpp>
+#include <microvm/micro_vm.hpp>
 
 #include <array>
 #include <cstddef>

@@ -1,0 +1,87 @@
+# SPDX-FileCopyrightText: 2026 Jarosław Pelczar <jarek@jpelczar.com>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
+cmake_minimum_required(VERSION 3.20)
+project(microvm VERSION 0.1.0 LANGUAGES CXX)
+
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(MICROVM_IS_TOP_LEVEL ON)
+else()
+    set(MICROVM_IS_TOP_LEVEL OFF)
+endif()
+
+option(MICROVM_BUILD_TESTS "Build test suite" ${MICROVM_IS_TOP_LEVEL})
+option(MICROVM_BUILD_EXAMPLES "Build example apps" ${MICROVM_IS_TOP_LEVEL})
+option(MICROVM_INSTALL
+    "Install microvm headers and CMake package metadata (requires jplcz_microfmt \
+provided via find_package, e.g. Conan/vcpkg/CPM, not the local FetchContent fallback)"
+    OFF)
+
+include(FetchContent)
+
+# microvm is a small register/memory scripting VM layered on top of the
+# jplcz_microfmt inspector headers (address_space, register_context, ...).
+# When developed side-by-side with microfmt, prefer the local checkout;
+# otherwise fetch it from GitHub.
+if(NOT TARGET jplcz_microfmt::microfmt)
+    set(MICROVM_MICROFMT_LOCAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../microfmt"
+        CACHE PATH "Path to a local jplcz_microfmt checkout")
+
+    if(EXISTS "${MICROVM_MICROFMT_LOCAL_PATH}/CMakeLists.txt")
+        set(JPLCZ_MICROFMT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+        set(JPLCZ_MICROFMT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+        set(JPLCZ_MICROFMT_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
+        set(JPLCZ_MICROFMT_BUILD_HEADER_CHECKS OFF CACHE BOOL "" FORCE)
+        FetchContent_Declare(jplcz_microfmt SOURCE_DIR "${MICROVM_MICROFMT_LOCAL_PATH}")
+    else()
+        FetchContent_Declare(jplcz_microfmt
+            GIT_REPOSITORY git@github.com:jplcz/microfmt.git
+            GIT_TAG main)
+    endif()
+
+    FetchContent_MakeAvailable(jplcz_microfmt)
+endif()
+
+add_library(microvm INTERFACE)
+add_library(microvm::microvm ALIAS microvm)
+
+target_include_directories(microvm INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
+target_link_libraries(microvm INTERFACE jplcz_microfmt::microfmt)
+target_compile_features(microvm INTERFACE cxx_std_20)
+
+if(MICROVM_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+if(MICROVM_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+if(MICROVM_INSTALL)
+    include(GNUInstallDirs)
+    install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(TARGETS microvm EXPORT microvm_targets)
+    install(EXPORT microvm_targets
+        FILE microvm-targets.cmake
+        NAMESPACE microvm::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/microvm)
+
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/microvm-config.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/microvm-config.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/microvm)
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/microvm-config-version.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion)
+    install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/microvm-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/microvm-config-version.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/microvm)
+endif()
